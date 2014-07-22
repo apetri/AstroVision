@@ -14,6 +14,7 @@ from lenstools.simulations import IGS1
 ###########Other functionality######################
 ####################################################
 
+from emcee.utils import MPIPool
 from measure import measure_all_histograms
 
 ####################################################
@@ -21,6 +22,12 @@ from measure import measure_all_histograms
 ####################################################
 
 if __name__=="__main__":
+
+	#Initialize MPI pool
+	try: 
+		pool = MPIPool()
+	except ValueError:
+		pool = None
 
 	#Parse command line arguments
 	parser = argparse.ArgumentParser()
@@ -33,6 +40,11 @@ if __name__=="__main__":
 		logging.basicConfig(level=logging.DEBUG)
 	else:
 		logging.basicConfig(level=logging.INFO)
+
+	if (pool is not None) and not(pool.is_master()):
+	
+		pool.wait()
+		sys.exit(0)
 
 	#Parse ini options file
 	options = ConfigParser.ConfigParser()
@@ -48,8 +60,14 @@ if __name__=="__main__":
 	models = [fiducial_model]
 
 	#Compute histogram ensembles for each of the models
-	bin_edges,idx,histogram_ensemble_list = measure_all_histograms(models,options,pool=None)
+	bin_edges,idx,histogram_ensemble_list = measure_all_histograms(models,options,pool=pool)
+
+	#Close pool
+	if pool is not None:
+		pool.close()
 
 	########################################################################################
 	#######################Histograms are available here!!!#################################
 	########################################################################################
+
+	logging.info("DONE!!")
