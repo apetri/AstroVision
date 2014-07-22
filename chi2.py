@@ -74,7 +74,6 @@ if __name__=="__main__":
 	#######################Histograms are available here!!!#################################
 	########################################################################################
 
-	for i in range(4):
-		print(histogram_ensemble_list[0].mean())
+	print("Om: {0:.2f} w0: {0:.2f} si8: {0:.2f}".format(histogram_ensemble_list[0].compare(histogram_ensemble_list[1]),histogram_ensemble_list[0].compare(histogram_ensemble_list[2]),histogram_ensemble_list[0].compare(histogram_ensemble_list[3])))
 
 	logging.info("DONE!!")
