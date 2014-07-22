@@ -54,7 +54,7 @@ if __name__=="__main__":
 	#Build IGS1 instances for cosmological models handling
 	fiducial_model = IGS1(root_path=options.get("simulations","root_path"))
 	high_Om_model = IGS1(Om0=0.29,root_path=options.get("simulations","root_path"))
-	high_w0_model = IGS1(w0=-0.8,root_path=options.get("simulations","root_path")) 
+	low_w0_model = IGS1(w0=-1.2,root_path=options.get("simulations","root_path")) 
 	high_si8_model = IGS1(sigma8=0.850,root_path=options.get("simulations","root_path"))
 
 	models = [fiducial_model]
