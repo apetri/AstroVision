@@ -74,6 +74,6 @@ if __name__=="__main__":
 	#######################Histograms are available here!!!#################################
 	########################################################################################
 
-	print("Om: {0:.2e} w0: {0:.2e} si8: {0:.2e}".format(histogram_ensemble_list[0].compare(histogram_ensemble_list[1]),histogram_ensemble_list[0].compare(histogram_ensemble_list[2]),histogram_ensemble_list[0].compare(histogram_ensemble_list[3])))
+	print("Om: {0:.2e} w0: {1:.2e} si8: {2:.2e}".format(histogram_ensemble_list[0].compare(histogram_ensemble_list[1]),histogram_ensemble_list[0].compare(histogram_ensemble_list[2]),histogram_ensemble_list[0].compare(histogram_ensemble_list[3])))
 
 	logging.info("DONE!!")
