@@ -77,6 +77,7 @@ if __name__=="__main__":
 	#######################Histograms are available here!!!#################################
 	########################################################################################
 
-	print("Om: {0:.2e} w0: {1:.2e} si8: {2:.2e}".format(compute_chi2(histogram_ensemble_list)))
+	chi2 = compute_chi2(histogram_ensemble_list)
+	print("Om: {0:.2e} w0: {1:.2e} si8: {2:.2e}".format(*chi2))
 
 	logging.info("DONE!!")
