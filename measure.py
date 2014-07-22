@@ -71,12 +71,12 @@ def measure_all_histograms(models,options,pool):
 
 	#Create smoothing scale index for the histogram
 	idx = Indexer.stack([PDF(bin_edges) for scale in smoothing_scales])
-
-	#Build Ensemble instance with the maps to analyze
-	map_ensemble = Ensemble.fromfilelist(range(1,num_realizations+1))
 	
 	#The for loop runs the distributed computations
 	for model in models:
+
+		#Build Ensemble instance with the maps to analyze
+		map_ensemble = Ensemble.fromfilelist(range(1,num_realizations+1))
 		
 		#Measure the histograms and load the data in the ensemble
 		map_ensemble.load(callback_loader=compute_map_histograms,pool=pool,simulation_set=model,smoothing_scales=smoothing_scales,index=idx,generator=generator,bin_edges=bin_edges,redshift=z)
