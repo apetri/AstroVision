@@ -18,6 +18,10 @@ from emcee.utils import MPIPool
 from measure import measure_all_histograms
 
 ####################################################
+############Compute all the chi2####################
+####################################################
+
+####################################################
 #########Main#######################################
 ####################################################
 
@@ -57,7 +61,7 @@ if __name__=="__main__":
 	low_w0_model = IGS1(w0=-1.2,root_path=options.get("simulations","root_path")) 
 	high_si8_model = IGS1(sigma8=0.850,root_path=options.get("simulations","root_path"))
 
-	models = [fiducial_model]
+	models = [fiducial_model,high_Om_model,low_w0_model,high_si8_model]
 
 	#Compute histogram ensembles for each of the models
 	bin_edges,idx,histogram_ensemble_list = measure_all_histograms(models,options,pool=pool)
@@ -69,5 +73,8 @@ if __name__=="__main__":
 	########################################################################################
 	#######################Histograms are available here!!!#################################
 	########################################################################################
+
+	for i in range(4):
+		print(histogram_ensemble_list[0].mean())
 
 	logging.info("DONE!!")
