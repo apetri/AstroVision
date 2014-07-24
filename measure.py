@@ -65,9 +65,12 @@ def measure_all_histograms(models,options,pool):
 	#Parsed from options
 	num_realizations = options.getint("analysis","num_realizations")
 	smoothing_scales = [float(scale) for scale in options.get("analysis","smoothing_scales").split(",")]
-	bin_edges = np.ogrid[options.getfloat("analysis","bin_edge_low"):options.getfloat("analysis","bin_edge_high"):options.getint("analysis","num_bins")*1j]
-	bin_midpoints = 0.5*(bin_edges[1:] + bin_edges[:-1])
+	bin_edges = np.ogrid[options.getfloat("analysis","bin_edge_low"):options.getfloat("analysis","bin_edge_high"):(options.getint("analysis","num_bins") - 2)*1j]
+	bin_edges = np.hstack((-10.0,bin_edges,10.0))
 	z = options.getfloat("analysis","redshift")
+
+	bin_midpoints = 0.5*(bin_edges[1:] + bin_edges[:-1])
+	
 
 	#Create smoothing scale index for the histogram
 	idx = Indexer.stack([PDF(bin_edges) for scale in smoothing_scales])
