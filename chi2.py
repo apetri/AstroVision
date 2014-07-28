@@ -14,6 +14,7 @@ from lenstools.simulations import IGS1
 ###########Other functionality######################
 ####################################################
 
+from astropy.table import Table
 from emcee.utils import MPIPool
 from measure import measure_all_histograms
 
@@ -78,6 +79,10 @@ if __name__=="__main__":
 	########################################################################################
 
 	chi2 = compute_chi2(histogram_ensemble_list)
-	print("Om: {0:.2e} w0: {1:.2e} si8: {2:.2e}".format(*chi2))
+	
+	data_rows = [chi2]
+	t = Table(rows=data_rows,names=(r"$\Omega_m={0:.2f}$".format(fiducial_model.Om0),r"$w_0={0:.1f}$".format(fiducial_model.w0),r"$\sigma_8={0:.2f}$".format(fiducial_model.sigma8)))
+
+	t.write(sys.stdout,format="latex")
 
 	logging.info("DONE!!")
