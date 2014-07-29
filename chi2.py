@@ -23,8 +23,20 @@ from measure import measure_all_histograms
 ############Compute all the delta chi2####################
 ##########################################################
 
-def compute_chi2(ensemble_list):
-	return ensemble_list[0].compare(ensemble_list[1]),ensemble_list[0].compare(ensemble_list[2]),ensemble_list[0].compare(ensemble_list[3])
+def compute_chi2_row(row):
+
+	chi2_values = [row[1].compare(row[n]) for n in range(2,len(row))]
+	return [row[0],] + chi2_values
+
+def make_chi2_table(ensemble_array):
+	
+	#Compute all the delta chi2 and build table rows with them
+	data_rows = [compute_chi2_row(ensemble_array[n]) for n in len(ensemble_array)]
+	column_names = ["Smooth",] + ensemble_array.dtype.names[2:]
+
+	#Build table
+	return Table(row=data_rows,names=column_names)
+
 
 ####################################################
 #########Main#######################################
@@ -87,19 +99,8 @@ if __name__=="__main__":
 	#######################Histograms are available here#########################################
 	#######################in the ensemble_array structured array################################
 	#############################################################################################
+	t = make_chi2_table(ensemble_array)
 
-	#chi2 = compute_chi2(histogram_ensemble_list)
-	
-	#data_rows = [chi2]
-	#t = Table(rows=data_rows,names=(r"$\Omega_m={0:.2f}$".format(high_Om_model.Om0),r"$w_0={0:.1f}$".format(low_w0_model.w0),r"$\sigma_8={0:.2f}$".format(high_si8_model.sigma8)))
-
-	##################################
-	#####Format the table#############
-	##################################
-
-	#for colname in t.columns:
-	#	t[colname].format = "{0:.2f}"
-
-	#t.write(sys.stdout,format="latex")
+	t.write(sys.stdout,format="latex")
 
 	logging.info("DONE!!")
