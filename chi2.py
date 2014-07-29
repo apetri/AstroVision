@@ -86,6 +86,13 @@ if __name__=="__main__":
 	data_rows = [chi2]
 	t = Table(rows=data_rows,names=(r"$\Omega_m={0:.2f}$".format(high_Om_model.Om0),r"$w_0={0:.1f}$".format(low_w0_model.w0),r"$\sigma_8={0:.2f}$".format(high_si8_model.sigma8)))
 
+	##################################
+	#####Format the table#############
+	##################################
+
+	for colname in t.columns:
+		t[colname].format = "{0:.2f}"
+
 	t.write(sys.stdout,format="latex")
 
 	logging.info("DONE!!")
