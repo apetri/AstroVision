@@ -68,19 +68,24 @@ if __name__=="__main__":
 
 	models = [fiducial_model,high_Om_model,low_w0_model,high_si8_model]
 
-	#Compute histogram ensembles for each of the models
-	ensemble_array = measure_all_histograms(models,options,pool=pool)
+	#Compute histogram ensembles for each of the models, otherways just load them from already npy generated file
+	if cmd_args.compute:
 
-	#Close pool
+		ensemble_array = measure_all_histograms(models,options,pool=pool)
+		np.save("histograms.npy",ensemble_array)
+
+	else:
+
+		ensemble_array = np.load("histograms.npy")
+
+	#Close pool if one is open
 	if pool is not None:
 		pool.close()
 
-	########################################################################################
-	#######################Histograms are available here!!!#################################
-	########################################################################################
-
-	####Save the ensemble data########
-	#histogram_ensemble_list[0].save("fiducial.npy")
+	#####################################################################################
+	#######################Histograms are available here#################################
+	#######################in the ensemble_array variable################################
+	#####################################################################################
 
 	#chi2 = compute_chi2(histogram_ensemble_list)
 	
@@ -96,4 +101,4 @@ if __name__=="__main__":
 
 	#t.write(sys.stdout,format="latex")
 
-	#logging.info("DONE!!")
+	logging.info("DONE!!")
