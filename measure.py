@@ -97,6 +97,6 @@ def measure_all_histograms(models,options,pool):
 		map_ensemble_list = map_ensemble.split(idx)
 
 		#Add to output struct array
-		ensemble_array[model.name] = np.array(map_ensemble_list,dtype=(model.name,Ensemble))
+		ensemble_array[model.name] = np.array(map_ensemble_list)
 
 	return ensemble_array
