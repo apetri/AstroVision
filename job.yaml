@@ -1,4 +1,4 @@
-command: mpiexec -n 100 -hostfile %hostfile% python chi2.py -f options_bnl.ini
+command: mpiexec -n 100 -hostfile %hostfile% python chi2.py -f options_bnl.ini -c
 mode: bycore
 N: 100
 hostfile: auto

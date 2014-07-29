@@ -31,11 +31,11 @@ def compute_chi2_row(row):
 def make_chi2_table(ensemble_array):
 	
 	#Compute all the delta chi2 and build table rows with them
-	data_rows = [compute_chi2_row(ensemble_array[n]) for n in len(ensemble_array)]
-	column_names = ["Smooth",] + ensemble_array.dtype.names[2:]
+	data_rows = [compute_chi2_row(ensemble_array[n]) for n in range(len(ensemble_array))]
+	column_names = ("Smooth",) + ensemble_array.dtype.names[2:]
 
 	#Build table
-	return Table(row=data_rows,names=column_names)
+	return Table(rows=data_rows,names=column_names)
 
 
 ####################################################
@@ -83,17 +83,18 @@ if __name__=="__main__":
 
 	#Compute histogram ensembles for each of the models, otherways just load them from already npy generated file
 	if cmd_args.compute:
-
 		ensemble_array = measure_all_histograms(models,options,pool=pool)
-		np.save("histograms.npy",ensemble_array)
-
-	else:
-
-		ensemble_array = np.load("histograms.npy")
 
 	#Close pool if one is open
 	if pool is not None:
 		pool.close()
+	
+	#Save computed histograms or load them
+	if cmd_args.compute:
+		np.save("histograms.npy",ensemble_array)
+		logging.info("Saving histograms to histograms.npy")
+	else:
+		ensemble_array = np.load("histograms.npy")
 
 	#############################################################################################
 	#######################Histograms are available here#########################################
