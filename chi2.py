@@ -14,13 +14,14 @@ from lenstools.simulations import IGS1
 ###########Other functionality######################
 ####################################################
 
+import numpy as np
 from astropy.table import Table
 from emcee.utils import MPIPool
 from measure import measure_all_histograms
 
-####################################################
-############Compute all the chi2####################
-####################################################
+##########################################################
+############Compute all the delta chi2####################
+##########################################################
 
 def compute_chi2(ensemble_list):
 	return ensemble_list[0].compare(ensemble_list[1]),ensemble_list[0].compare(ensemble_list[2]),ensemble_list[0].compare(ensemble_list[3])
@@ -82,10 +83,10 @@ if __name__=="__main__":
 	if pool is not None:
 		pool.close()
 
-	#####################################################################################
-	#######################Histograms are available here#################################
-	#######################in the ensemble_array variable################################
-	#####################################################################################
+	#############################################################################################
+	#######################Histograms are available here#########################################
+	#######################in the ensemble_array structured array################################
+	#############################################################################################
 
 	#chi2 = compute_chi2(histogram_ensemble_list)
 	
