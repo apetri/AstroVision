@@ -78,10 +78,13 @@ if __name__=="__main__":
 	#######################Histograms are available here!!!#################################
 	########################################################################################
 
+	####Save the ensemble data########
+	histogram_ensemble_list[0].save("fiducial.npy")
+
 	chi2 = compute_chi2(histogram_ensemble_list)
 	
 	data_rows = [chi2]
-	t = Table(rows=data_rows,names=(r"$\Omega_m={0:.2f}$".format(fiducial_model.Om0),r"$w_0={0:.1f}$".format(fiducial_model.w0),r"$\sigma_8={0:.2f}$".format(fiducial_model.sigma8)))
+	t = Table(rows=data_rows,names=(r"$\Omega_m={0:.2f}$".format(high_Om_model.Om0),r"$w_0={0:.1f}$".format(low_w0_model.w0),r"$\sigma_8={0:.2f}$".format(high_si8_model.sigma8)))
 
 	t.write(sys.stdout,format="latex")
 
