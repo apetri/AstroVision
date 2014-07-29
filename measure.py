@@ -55,8 +55,6 @@ def compute_map_histograms(args):
 
 def measure_all_histograms(models,options,pool):
 
-	ensemble_list = list()
-
 	#Look at a sample map
 	sample_map = ConvergenceMap.fromfilename(models[0].getNames(z=1.0,realizations=[1])[0],loader=load_fits_default_convergence)
 	#Initialize Gaussian shape noise generator for the sample map shape and angle
@@ -72,8 +70,19 @@ def measure_all_histograms(models,options,pool):
 	bin_midpoints = 0.5*(bin_edges[1:] + bin_edges[:-1])
 	
 
-	#Create smoothing scale index for the histogram
+	#Create smoothing scale index for the histograms
 	idx = Indexer.stack([PDF(bin_edges) for scale in smoothing_scales])
+
+	#Build the data type of the structure array in output
+	data_type = [(model.name,Ensemble) for model in models]
+	#Append info about the smoothing scale
+	data_type = [("Smooth",np.float),] + data_type
+
+	#Create output struct array
+	ensemble_array = np.zeros(len(smoothing_scales),dtype=data_type)
+
+	#Write smoothing scale information
+	ensemble_array["Smooth"] = np.array(smoothing_scales)
 	
 	#The for loop runs the distributed computations
 	for model in models:
@@ -84,7 +93,10 @@ def measure_all_histograms(models,options,pool):
 		#Measure the histograms and load the data in the ensemble
 		map_ensemble.load(callback_loader=compute_map_histograms,pool=pool,simulation_set=model,smoothing_scales=smoothing_scales,index=idx,generator=generator,bin_edges=bin_edges,redshift=z)
 
-		#Append to output
-		ensemble_list.append(map_ensemble)
+		#Split the ensemble between different smoothing scales
+		map_ensemble_list = map_ensemble.split(idx)
 
-	return bin_midpoints,idx,ensemble_list
+		#Add to output struct array
+		ensemble_array[model.name] = np.array(map_ensemble_list,dtype=(model.name,Ensemble))
+
+	return ensemble_array
