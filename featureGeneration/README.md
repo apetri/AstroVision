@@ -27,6 +27,9 @@ to generate for example 10 random noise realizations. After that you can load fo
 MATLAB part
 ------------------------
 getSimpleFeaure is for generating one-level features. Detailed description of the inputs are included in the function file itself.
-		getSimpleFeature({'ref','om29','si850','w12','si750'},[-0.15,0.15],120,2.5,'scale25');
+
+	getSimpleFeature({'ref','om29','si850','w12','si750'},[-0.15,0.15],120,2.5,'scale25');
 
 simpleChi is for computing the deltachi2.
+
+	simpleChi('Feature_15Bins.mat','chi_15bin.mat');
