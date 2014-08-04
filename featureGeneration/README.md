@@ -23,7 +23,9 @@ to generate for example 10 random noise realizations. After that you can load fo
 	
 	%should print [2048 2048]
 	
-	
+
+MATLAB part
+------------------------
 getSimpleFeaure is for generating one-level features. Detailed description of the inputs are included in the function file itself.
 
 simpleChi is for computing the deltachi2.
