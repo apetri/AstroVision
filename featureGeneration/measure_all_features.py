@@ -75,7 +75,7 @@ def igs1_convergence_measure_all(realization,model,index,mask_filename=None,reds
 	conv_map = model.load(realization,z=redshift,big_fiducial_set=big_fiducial_set,kind="convergence")
 
 	#Add the noise
-	gen = GaussianNoiseGenerator.formap(conv_map)
+	gen = GaussianNoiseGenerator.forMap(conv_map)
 	noise = gen.getShapeNoise(z=redshift,ngal=15.0*arcmin**-2,seed=realization)
 
 	logging.debug("Adding shape noise with rms {0:.3f}".format(noise.kappa.std()))
@@ -87,6 +87,8 @@ def igs1_convergence_measure_all(realization,model,index,mask_filename=None,reds
 
 	if mask_filename is not None:
 		raise ValueError("Masks not implemented!") 
+	
+	logging.debug("Measuring...")
 
 	#Allocate memory for observables
 	descriptors = index
@@ -244,6 +246,8 @@ if __name__=="__main__":
 		
 		pool.wait()
 		sys.exit(0)
+	
+	logging.info("Start")
 
 	#Parse INI options file
 	options = ConfigParser.ConfigParser()
@@ -261,7 +265,7 @@ if __name__=="__main__":
 
 	if options.has_section("power_spectrum"):
 		l_edges = np.ogrid[options.getfloat("power_spectrum","lmin"):options.getfloat("power_spectrum","lmax"):(options.getint("power_spectrum","num_bins")+1)*1j]
-		np.save(os.path.join(save_path,"ell.npy"),0.5*(l_edges[1:]+l_edges[:-1]))
+		np.savetxt(os.path.join(save_path,"ell.txt"),0.5*(l_edges[1:]+l_edges[:-1]))
 		feature_list.append(PowerSpectrum(l_edges))
 
 	if options.has_section("moments"):
@@ -269,12 +273,12 @@ if __name__=="__main__":
 
 	if options.has_section("peaks"):
 		th_peaks = np.ogrid[options.getfloat("peaks","th_min"):options.getfloat("peaks","th_max"):(options.getint("peaks","num_bins")+1)*1j]
-		np.save(os.path.join(save_path,"th_peaks.npy"),0.5*(th_peaks[1:]+th_peaks[:-1]))
+		np.savetxt(os.path.join(save_path,"th_peaks.txt"),0.5*(th_peaks[1:]+th_peaks[:-1]))
 		feature_list.append(Peaks(th_peaks))
 
 	if options.has_section("minkowski_functionals"):
 		th_minkowski = np.ogrid[options.getfloat("minkowski_functionals","th_min"):options.getfloat("minkowski_functionals","th_max"):(options.getint("minkowski_functionals","num_bins")+1)*1j]
-		np.save(os.path.join(save_path,"th_minkowski.npy"),0.5*(th_minkowski[1:]+th_minkowski[:-1]))
+		np.savetxt(os.path.join(save_path,"th_minkowski.txt"),0.5*(th_minkowski[1:]+th_minkowski[:-1]))
 		feature_list.append(MinkowskiAll(th_minkowski))
 
 	idx = Indexer.stack(feature_list)
@@ -293,11 +297,13 @@ if __name__=="__main__":
 	#First the fiducial model
 	for big_fiducial_set in [True,False]:
 		measurement = Measurement(model=fiducial_model,nrealizations=nrealizations,measurer=igs1_convergence_measure_all,index=idx,redshift=redshift,big_fiducial_set=big_fiducial_set,smoothing=smoothing_scale,save_path=save_path)
+		logging.info("Processing {0}...".format(measurement.cosmo_id))
 		measurement.measure(pool=pool)
 
 	#Then all the others
 	for model in variation_models:
 		measurement = Measurement(model=model,nrealizations=nrealizations,measurer=igs1_convergence_measure_all,index=idx,redshift=redshift,big_fiducial_set=False,smoothing=smoothing_scale,save_path=save_path)
+		logging.info("Processing {0}...".format(measurement.cosmo_id))
 		measurement.measure(pool=pool)
 	
 	#Complete

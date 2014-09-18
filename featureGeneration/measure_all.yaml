@@ -1,0 +1,4 @@
+command: mpiexec -n 101 -hostfile %hostfile% python measure_all_features.py -f options_bnl.ini -v
+mode: bycore
+N: 101
+hostfile: auto
