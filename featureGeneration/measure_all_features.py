@@ -9,7 +9,7 @@ import StringIO
 ##################LensTools functionality#############################
 ######################################################################
 
-from lenstools import ConvergenceMap
+from lenstools import ConvergenceMap,GaussianNoiseGenerator
 from lenstools.simulations import IGS1
 from lenstools.index import Indexer,PowerSpectrum,PDF,Peaks,MinkowskiAll,Moments
 from lenstools import Ensemble
@@ -74,7 +74,16 @@ def igs1_convergence_measure_all(realization,model,index,mask_filename=None,reds
 	#Load the map
 	conv_map = model.load(realization,z=redshift,big_fiducial_set=big_fiducial_set,kind="convergence")
 
-	#Map preprocessing, add noise and smoothing
+	#Add the noise
+	gen = GaussianNoiseGenerator.formap(conv_map)
+	noise = gen.getShapeNoise(z=redshift,ngal=15.0*arcmin**-2,seed=realization)
+
+	logging.debug("Adding shape noise with rms {0:.3f}".format(noise.kappa.std()))
+	conv_map += noise
+
+	#Smooth the map
+	logging.debug("Smoothing the map on {0}".format(smoothing))
+	conv_map.smooth(scale_angle=smoothing)
 
 	if mask_filename is not None:
 		raise ValueError("Masks not implemented!") 
@@ -170,7 +179,7 @@ class Measurement(object):
 		if not os.path.isdir(dir_to_make):
 			os.mkdir(dir_to_make)
 
-		dir_to_make = os.path.join(dir_to_make,"smooth{0:02d}".format(int(self.smoothing.value)*100))
+		dir_to_make = os.path.join(dir_to_make,"smooth{0:02d}".format(int(self.smoothing.value*100)))
 		if not os.path.isdir(dir_to_make):
 			os.mkdir(dir_to_make)
 
@@ -198,7 +207,7 @@ class Measurement(object):
 		for n,ensemble in enumerate(single_feature_ensembles):
 			
 			savename = os.path.join(self.full_save_path,self.index[n].name) + ".mat"
-			logging.info("Saving features to {0}".format(savename))
+			logging.debug("Saving features to {0}".format(savename))
 			ensemble.savemat(savename)
 
 
