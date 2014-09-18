@@ -69,10 +69,10 @@ def igs1_convergence_measure_all(realization,model,index,mask_filename=None,reds
 	
 	"""
 
-	logging.debug("Processing {0}".format(filename))
+	logging.debug("Processing {0}".format(model.getNames(realization,z=redshift,big_fiducial_set=big_fiducial_set,kind="convergence")))
 
 	#Load the map
-	conv_map = model.load(realization,redshift=redshift,big_fiducial_set=big_fiducial_set,kind="convergence")
+	conv_map = model.load(realization,z=redshift,big_fiducial_set=big_fiducial_set,kind="convergence")
 
 	#Map preprocessing, add noise and smoothing
 
@@ -284,12 +284,12 @@ if __name__=="__main__":
 	#First the fiducial model
 	for big_fiducial_set in [True,False]:
 		measurement = Measurement(model=fiducial_model,nrealizations=nrealizations,measurer=igs1_convergence_measure_all,index=idx,redshift=redshift,big_fiducial_set=big_fiducial_set,smoothing=smoothing_scale,save_path=save_path)
-		measurer.measure(pool=pool)
+		measurement.measure(pool=pool)
 
 	#Then all the others
 	for model in variation_models:
 		measurement = Measurement(model=model,nrealizations=nrealizations,measurer=igs1_convergence_measure_all,index=idx,redshift=redshift,big_fiducial_set=False,smoothing=smoothing_scale,save_path=save_path)
-
+		measurement.measure(pool=pool)
 	
 	#Complete
 	if pool is not None:
