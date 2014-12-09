@@ -78,7 +78,7 @@ def igs1_convergence_measure_all(realization,model,index,mask_filename=None,reds
 	gen = GaussianNoiseGenerator.forMap(conv_map)
 	noise = gen.getShapeNoise(z=redshift,ngal=15.0*arcmin**-2,seed=realization)
 
-	logging.debug("Adding shape noise with rms {0:.3f}".format(noise.kappa.std()))
+	logging.debug("Adding shape noise with rms {0:.3f}".format(noise.data.std()))
 	conv_map += noise
 
 	#Smooth the map
