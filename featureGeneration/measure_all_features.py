@@ -188,7 +188,7 @@ class Measurement(object):
 		self.full_save_path = dir_to_make		
 
 
-	def measure(self,pool=None):
+	def measure(self,pool=None,save_type="npy"):
 		"""
 		Measures the features specified in the Indexer for all the maps whose names are calculated by get_all_map_names; saves the ensemble results in numpy array format
 
@@ -208,9 +208,9 @@ class Measurement(object):
 		#For each of the sub_ensembles, save it in the appropriate directory
 		for n,ensemble in enumerate(single_feature_ensembles):
 			
-			savename = os.path.join(self.full_save_path,self.index[n].name) + ".mat"
+			savename = os.path.join(self.full_save_path,self.index[n].name) + ".{0}".format(save_type)
 			logging.debug("Saving features to {0}".format(savename))
-			ensemble.savemat(savename)
+			ensemble.save(savename)
 
 
 #######################################################
@@ -223,6 +223,7 @@ if __name__=="__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-f","--file",dest="options_file",action="store",type=str,help="analysis options file")
 	parser.add_argument("-v","--verbose",dest="verbose",action="store_true",default=False,help="turn on verbosity")
+	parser.add_argument("-t","--type",dest="type",action="store",default="npy",help="format in which to save the features")
 
 	cmd_args = parser.parse_args()
 
@@ -298,13 +299,13 @@ if __name__=="__main__":
 	for big_fiducial_set in [True,False]:
 		measurement = Measurement(model=fiducial_model,nrealizations=nrealizations,measurer=igs1_convergence_measure_all,index=idx,redshift=redshift,big_fiducial_set=big_fiducial_set,smoothing=smoothing_scale,save_path=save_path)
 		logging.info("Processing {0}...".format(measurement.cosmo_id))
-		measurement.measure(pool=pool)
+		measurement.measure(pool=pool,save_type=cmd_args.type)
 
 	#Then all the others
 	for model in variation_models:
 		measurement = Measurement(model=model,nrealizations=nrealizations,measurer=igs1_convergence_measure_all,index=idx,redshift=redshift,big_fiducial_set=False,smoothing=smoothing_scale,save_path=save_path)
 		logging.info("Processing {0}...".format(measurement.cosmo_id))
-		measurement.measure(pool=pool)
+		measurement.measure(pool=pool,save_type=cmd_args.type)
 	
 	#Complete
 	if pool is not None:
