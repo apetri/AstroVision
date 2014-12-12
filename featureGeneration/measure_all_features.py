@@ -286,6 +286,11 @@ if __name__=="__main__":
 		np.savetxt(os.path.join(save_path,"th_minkowski.txt"),0.5*(th_minkowski[1:]+th_minkowski[:-1]))
 		feature_list.append(MinkowskiAll(th_minkowski))
 
+	if options.has_section("pdf"):
+		th_pdf = np.ogrid[options.getfloat("pdf","th_min"):options.getfloat("pdf","th_max"):(options.getint("pdf","num_bins")+1)*1j]
+		np.savetxt(os.path.join(save_path,"th_pdf.txt"),0.5*(th_pdf[1:]+th_pdf[:-1]))
+		feature_list.append(PDF(th_pdf))
+
 	idx = Indexer.stack(feature_list)
 
 	#Write an info file with all the analysis information
