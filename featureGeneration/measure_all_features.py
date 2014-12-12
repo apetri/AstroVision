@@ -185,7 +185,11 @@ class Measurement(object):
 		if not os.path.isdir(dir_to_make):
 			os.mkdir(dir_to_make)
 
-		self.full_save_path = dir_to_make		
+		self.full_save_path = dir_to_make
+
+	def savename(self,descriptor,save_type="npy"):
+
+		return os.path.join(self.full_save_path,descriptor.name + ".{0}".format(save_type))		
 
 
 	def measure(self,pool=None,save_type="npy"):
@@ -208,7 +212,7 @@ class Measurement(object):
 		#For each of the sub_ensembles, save it in the appropriate directory
 		for n,ensemble in enumerate(single_feature_ensembles):
 			
-			savename = os.path.join(self.full_save_path,self.index[n].name) + ".{0}".format(save_type)
+			savename = self.savename(descriptor=self.index[n])
 			logging.debug("Saving features to {0}".format(savename))
 			ensemble.save(savename)
 
