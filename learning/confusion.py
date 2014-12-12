@@ -21,6 +21,7 @@ from measure_all_features import build_feature_list,Measurement
 #######Other functionality###################
 #############################################
 
+import numpy as np
 import astropy.units as u
 
 
