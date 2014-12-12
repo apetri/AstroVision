@@ -66,6 +66,7 @@ Realizations to analyze: 1 to {0}
 def build_feature_list(options):
 
 	feature_list = list()
+	save_path = options.get("analysis","save_path")
 
 	if options.has_section("power_spectrum"):
 		l_edges = np.ogrid[options.getfloat("power_spectrum","lmin"):options.getfloat("power_spectrum","lmax"):(options.getint("power_spectrum","num_bins")+1)*1j]
