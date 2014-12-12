@@ -58,6 +58,43 @@ Realizations to analyze: 1 to {0}
 	s.seek(0)
 	return s.read()
 
+
+#################################################################################################
+###############Build feature list from INI options file##########################################
+#################################################################################################
+
+def build_feature_list(options):
+
+	feature_list = list()
+
+	if options.has_section("power_spectrum"):
+		l_edges = np.ogrid[options.getfloat("power_spectrum","lmin"):options.getfloat("power_spectrum","lmax"):(options.getint("power_spectrum","num_bins")+1)*1j]
+		np.savetxt(os.path.join(save_path,"ell.txt"),0.5*(l_edges[1:]+l_edges[:-1]))
+		feature_list.append(PowerSpectrum(l_edges))
+
+	if options.has_section("moments"):
+		feature_list.append(Moments())
+
+	if options.has_section("peaks"):
+		th_peaks = np.ogrid[options.getfloat("peaks","th_min"):options.getfloat("peaks","th_max"):(options.getint("peaks","num_bins")+1)*1j]
+		np.savetxt(os.path.join(save_path,"th_peaks.txt"),0.5*(th_peaks[1:]+th_peaks[:-1]))
+		feature_list.append(Peaks(th_peaks))
+
+	if options.has_section("minkowski_functionals"):
+		th_minkowski = np.ogrid[options.getfloat("minkowski_functionals","th_min"):options.getfloat("minkowski_functionals","th_max"):(options.getint("minkowski_functionals","num_bins")+1)*1j]
+		np.savetxt(os.path.join(save_path,"th_minkowski.txt"),0.5*(th_minkowski[1:]+th_minkowski[:-1]))
+		feature_list.append(MinkowskiAll(th_minkowski))
+
+	if options.has_section("pdf"):
+		th_pdf = np.ogrid[options.getfloat("pdf","th_min"):options.getfloat("pdf","th_max"):(options.getint("pdf","num_bins")+1)*1j]
+		np.savetxt(os.path.join(save_path,"th_pdf.txt"),0.5*(th_pdf[1:]+th_pdf[:-1]))
+		feature_list.append(PDF(th_pdf))
+
+
+	return feature_list
+
+
+
 ###########################################################################
 ########################IGS1 convergence maps measurer#####################
 ###########################################################################
@@ -266,37 +303,12 @@ if __name__=="__main__":
 	redshift = options.getfloat("analysis","redshift")
 
 	#Build an Indexer instance, that will contain info on all the features to measure, including binning, etc... (read from options)
-	feature_list = list()
-
-	if options.has_section("power_spectrum"):
-		l_edges = np.ogrid[options.getfloat("power_spectrum","lmin"):options.getfloat("power_spectrum","lmax"):(options.getint("power_spectrum","num_bins")+1)*1j]
-		np.savetxt(os.path.join(save_path,"ell.txt"),0.5*(l_edges[1:]+l_edges[:-1]))
-		feature_list.append(PowerSpectrum(l_edges))
-
-	if options.has_section("moments"):
-		feature_list.append(Moments())
-
-	if options.has_section("peaks"):
-		th_peaks = np.ogrid[options.getfloat("peaks","th_min"):options.getfloat("peaks","th_max"):(options.getint("peaks","num_bins")+1)*1j]
-		np.savetxt(os.path.join(save_path,"th_peaks.txt"),0.5*(th_peaks[1:]+th_peaks[:-1]))
-		feature_list.append(Peaks(th_peaks))
-
-	if options.has_section("minkowski_functionals"):
-		th_minkowski = np.ogrid[options.getfloat("minkowski_functionals","th_min"):options.getfloat("minkowski_functionals","th_max"):(options.getint("minkowski_functionals","num_bins")+1)*1j]
-		np.savetxt(os.path.join(save_path,"th_minkowski.txt"),0.5*(th_minkowski[1:]+th_minkowski[:-1]))
-		feature_list.append(MinkowskiAll(th_minkowski))
-
-	if options.has_section("pdf"):
-		th_pdf = np.ogrid[options.getfloat("pdf","th_min"):options.getfloat("pdf","th_max"):(options.getint("pdf","num_bins")+1)*1j]
-		np.savetxt(os.path.join(save_path,"th_pdf.txt"),0.5*(th_pdf[1:]+th_pdf[:-1]))
-		feature_list.append(PDF(th_pdf))
-
+	feature_list = build_feature_list(options)
 	idx = Indexer.stack(feature_list)
 
 	#Write an info file with all the analysis information
 	with open(os.path.join(save_path,"INFO.txt"),"w") as infofile:
 		infofile.write(write_info(options))
-
 
 	#Construct all the IGS1 instances corresponding to the models we want to measure the features of
 	all_igs1_models = IGS1.getModels(root_path=options.get("simulations","root_path"))
