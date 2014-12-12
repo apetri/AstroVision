@@ -41,10 +41,33 @@ def confusionMatrix(descriptor,measurement_list,measurement_covariance):
 	#Compute the covariance matrix
 	covariance = Ensemble.read(measurement_covariance.savename(descriptor)).covariance()
 
-	#Now we are ready to compute the confusion matrix, for each parameter
-	return analysis,covariance
+	#################################################################################
+	#####Now we are ready to compute the confusion matrix, for each parameter########
+	#################################################################################
+
+	#Allocate space for confusion matrix
+	confusion_matrix = np.zeros((4,3,3))
+
+	#Find where are the variations for each model parameter
+	locations = analysis.where()
+
+	#Cycle over parameters
+	for n in range(4):
+
+		l0 = analysis._fiducial
+		l1,l2 = locations[n]
+
+		for i,m in enumerate([l0,l1,l2]):
+		
+			#Load the ensemble
+			ens = Ensemble.read(measurement_list[m].savename(descriptor))
+			
+			#Compute the confusion matrix
+			confusion_matrix[n,i] = analysis.classify(ens.data,covariance,labels=[l0,l1,l2],confusion=True)
 
 
+	#Return the confusion matrix for the selected descriptor
+	return confusion_matrix
 
 
 ###############################################################
@@ -74,9 +97,9 @@ def main(cmd_args):
 
 
 	#Confusion matrix for first descriptor
-	analysis,covariance = confusionMatrix(feature_list[0],measurement_list,measurement_covariance)
+	confusion_matrix = confusionMatrix(feature_list[0],measurement_list,measurement_covariance)
 
-	return feature_list[0],analysis,covariance
+	return feature_list[0],confusion_matrix
 
 
 if __name__=="__main__":
@@ -91,7 +114,7 @@ if __name__=="__main__":
 		parser.print_help()
 		sys.exit(0)
 
-	feature,analysis,covariance = main(cmd_args)
+	feature,confusion_matrix = main(cmd_args)
 
 	
 	
