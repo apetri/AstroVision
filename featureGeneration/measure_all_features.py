@@ -23,6 +23,9 @@ from astropy.io import fits
 from astropy.units import deg,arcmin
 from emcee.utils import MPIPool
 
+#Hough transform
+from skimage.transform import hough_line
+
 ###########################################################################
 #############Read INI options file and write summary information###########
 ###########################################################################
@@ -185,6 +188,38 @@ def igs1_convergence_measure_all(realization,model,index,mask_filename=None,reds
 	return observables
 
 
+###########################################################################
+########################IGS1 measure hough histograms######################
+###########################################################################
+
+def igs1_measure_hough(realization,model,redshift=1.0,big_fiducial_set=False,threshold=0.1,bins=np.linspace(0.0,0.0014,50)):
+
+
+	"""
+	Measures all the statistical descriptors of a convergence map as indicated by the index instance
+	
+	"""
+
+	logging.debug("Processing {0}".format(model.getNames(realization,z=redshift,big_fiducial_set=big_fiducial_set,kind="convergence")))
+
+	#Load the map
+	conv_map = model.load(realization,z=redshift,big_fiducial_set=big_fiducial_set,kind="convergence")
+
+	#Log to user
+	logging.debug("Measuring hough histograms...")
+
+	#Compute the hough transform
+	linmap = conv_map.data > np.random.rand(*conv_map.data.shape) * threshold
+	out,angle,d = hough_line(linmap)
+
+	#Compute the histogram of the hough transform map
+	h,b = np.histogram(out.flatten()*1.0/linmap.sum(),bins=bins)
+
+	#Return
+	return h
+
+
+
 ######################################################################################
 ##########Measurement object, handles the feature measurements from the maps##########
 ######################################################################################
@@ -255,6 +290,24 @@ class Measurement(object):
 			ensemble.save(savename)
 
 
+	def measure_hough(self,pool=None,threshold=0.1,bins=np.linspace(0.0,0.0014,50),save_type="npy"):
+
+		assert self.measurer==igs1_measure_hough
+
+		realizations = range(1,self.nrealizations+1)
+
+		#Build the ensemble
+		ens = Ensemble.fromfilelist(realizations)
+
+		#Load the data into the ensemble by calling the measurer on each map
+		ens.load(callback_loader=self.measurer,pool=pool,model=self.model,redshift=self.redshift,big_fiducial_set=self.big_fiducial_set,threshold=threshold,bins=bins)
+
+		#Save
+		savename = self.savename(descriptor="hough")
+		logging.info("Saving hough histograms to {0}".format(savename))
+		ens.save(savename)
+
+
 #######################################################
 ###############Main execution##########################
 #######################################################
@@ -266,6 +319,7 @@ if __name__=="__main__":
 	parser.add_argument("-f","--file",dest="options_file",action="store",type=str,help="analysis options file")
 	parser.add_argument("-v","--verbose",dest="verbose",action="store_true",default=False,help="turn on verbosity")
 	parser.add_argument("-t","--type",dest="type",action="store",default="npy",help="format in which to save the features")
+	parser.add_argument("-h","--hough",dest="hough",action="store_true",default=False,help="enable to measure hough histograms")
 
 	cmd_args = parser.parse_args()
 
@@ -317,17 +371,39 @@ if __name__=="__main__":
 	fiducial_model = all_igs1_models[0]
 	variation_models = all_igs1_models[1:]
 
-	#First the fiducial model
-	for big_fiducial_set in [True,False]:
-		measurement = Measurement(model=fiducial_model,nrealizations=nrealizations,measurer=igs1_convergence_measure_all,index=idx,redshift=redshift,big_fiducial_set=big_fiducial_set,smoothing=smoothing_scale,save_path=save_path)
-		logging.info("Processing {0}...".format(measurement.cosmo_id))
-		measurement.measure(pool=pool,save_type=cmd_args.type)
+	if not cmd_args.hough:
+	
+		#First the fiducial model
+		for big_fiducial_set in [True,False]:
+			measurement = Measurement(model=fiducial_model,nrealizations=nrealizations,measurer=igs1_convergence_measure_all,index=idx,redshift=redshift,big_fiducial_set=big_fiducial_set,smoothing=smoothing_scale,save_path=save_path)
+			logging.info("Processing {0}...".format(measurement.cosmo_id))
+			measurement.measure(pool=pool,save_type=cmd_args.type)
 
-	#Then all the others
-	for model in variation_models:
-		measurement = Measurement(model=model,nrealizations=nrealizations,measurer=igs1_convergence_measure_all,index=idx,redshift=redshift,big_fiducial_set=False,smoothing=smoothing_scale,save_path=save_path)
-		logging.info("Processing {0}...".format(measurement.cosmo_id))
-		measurement.measure(pool=pool,save_type=cmd_args.type)
+		#Then all the others
+		for model in variation_models:
+			measurement = Measurement(model=model,nrealizations=nrealizations,measurer=igs1_convergence_measure_all,index=idx,redshift=redshift,big_fiducial_set=False,smoothing=smoothing_scale,save_path=save_path)
+			logging.info("Processing {0}...".format(measurement.cosmo_id))
+			measurement.measure(pool=pool,save_type=cmd_args.type)
+
+	else:
+
+		threshold = 0.1
+		bins = np.linspace(0.0,0.0014,50)
+		np.save("bins_hough.npy",0.5(bins[1:]+bins[:-1]))
+
+		#First the fiducial model
+		for big_fiducial_set in [True,False]:
+			measurement = Measurement(model=fiducial_model,nrealizations=nrealizations,measurer=igs1_measure_hough,index=idx,redshift=redshift,big_fiducial_set=big_fiducial_set,smoothing=smoothing_scale,save_path=save_path)
+			logging.info("Processing {0}...".format(measurement.cosmo_id))
+			measurement.measure_hough(pool=pool,save_type=cmd_args.type,threshold=threshold,bins=bins)
+
+		#Then all the others
+		for model in variation_models:
+			measurement = Measurement(model=model,nrealizations=nrealizations,measurer=igs1_measure_hough,index=idx,redshift=redshift,big_fiducial_set=False,smoothing=smoothing_scale,save_path=save_path)
+			logging.info("Processing {0}...".format(measurement.cosmo_id))
+			measurement.measure_hough(pool=pool,save_type=cmd_args.type,threshold=threshold,bins=bins)
+
+
 	
 	#Complete
 	if pool is not None:
