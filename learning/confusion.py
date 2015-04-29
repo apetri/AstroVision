@@ -23,6 +23,20 @@ from measure_all_features import build_feature_list,Measurement
 
 import numpy as np
 import astropy.units as u
+import astropy.table as tbl
+
+################################################################################
+#################Print info in table format#####################################
+################################################################################
+
+def mktable(name,data):
+    t1 = tbl.Table(rows=[(name,),(name+"+",),(name+"-",)],names=("in/out",))
+    for col in t1.columns:
+    	t1[col].format="{0:.3f}"
+    t2 = tbl.Table(data,names=(name,name+"+",name+"-"))
+    return tbl.hstack((t1,t2))
+
+names = [r"$\Omega_m$",r"$w$",r"$\sigma_8$",r"$n_s$"]
 
 
 ################################################################################
@@ -121,6 +135,10 @@ if __name__=="__main__":
 		sys.exit(0)
 
 	feature,confusion_matrix = main(cmd_args)
+
+	#Print info in table format
+	for n,p in enumerate(names):
+		mktable(p,confusion_matrix[n]).write(sys.stdout,format="latex")
 
 	
 	
