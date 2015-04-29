@@ -78,6 +78,8 @@ def confusionMatrix(descriptor,measurement_list,measurement_covariance):
 ###############################################################
 def main(cmd_args):
 
+	n = int(cmd_args.n[0])
+
 	#Read options file
 	options = ConfigParser.ConfigParser()
 	options.read(cmd_args.options_file)
@@ -100,9 +102,9 @@ def main(cmd_args):
 
 
 	#Confusion matrix for first descriptor
-	confusion_matrix = confusionMatrix(feature_list[0],measurement_list,measurement_covariance)
+	confusion_matrix = confusionMatrix(feature_list[n],measurement_list,measurement_covariance)
 
-	return feature_list[0],confusion_matrix
+	return feature_list[n],confusion_matrix
 
 
 if __name__=="__main__":
@@ -110,6 +112,7 @@ if __name__=="__main__":
 	#Parse command line options
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-f","--file",dest="options_file",action="store",type=str,help="analysis options file")
+	parser.add_argument("n",nargs=1)
 
 	cmd_args = parser.parse_args()
 
