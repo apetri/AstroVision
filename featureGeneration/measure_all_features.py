@@ -262,7 +262,7 @@ class Measurement(object):
 
 	def savename(self,descriptor,save_type="npy"):
 
-		return os.path.join(self.full_save_path,descriptor.name + ".{0}".format(save_type))		
+		return os.path.join(self.full_save_path,descriptor.name + "z{0}".format(int(self.redshift*100)) + ".{0}".format(save_type))		
 
 
 	def measure(self,pool=None,save_type="npy"):
