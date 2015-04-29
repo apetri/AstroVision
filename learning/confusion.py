@@ -58,6 +58,8 @@ def confusionMatrix(descriptor,measurement_list,measurement_covariance):
 		l0 = analysis._fiducial
 		l1,l2 = locations[n]
 
+		print("[+] n={0}, fiducial: {1}, variation 1: {2}, variation 2:{3}".format(n,analysis.parameter_set[l0],analysis.parameter_set[l1],analysis.parameter_set[l2]))
+
 		for i,m in enumerate([l0,l1,l2]):
 		
 			#Load the ensemble
