@@ -95,10 +95,10 @@ def main(cmd_args):
 	#Build list for model book-keeping
 	measurement_list = list()
 	for model in all_igs1_models:
-		measurement_list.append(Measurement(model=model,nrealizations=None,measurer=None,index=None,redshift=None,big_fiducial_set=False,smoothing=smoothing_scale,save_path=save_path))
+		measurement_list.append(Measurement(model=model,nrealizations=None,measurer=None,index=None,redshift=options.getfloat("analysis","redshift"),big_fiducial_set=False,smoothing=smoothing_scale,save_path=save_path))
 
 	#Measurement of the covariance matrix
-	measurement_covariance = Measurement(model=all_igs1_models[0],nrealizations=None,measurer=None,index=None,redshift=None,big_fiducial_set=True,smoothing=smoothing_scale,save_path=save_path)
+	measurement_covariance = Measurement(model=all_igs1_models[0],nrealizations=None,measurer=None,index=None,redshift=options.getfloat("analysis","redshift"),big_fiducial_set=True,smoothing=smoothing_scale,save_path=save_path)
 
 
 	#Confusion matrix for first descriptor
