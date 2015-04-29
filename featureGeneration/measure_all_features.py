@@ -319,7 +319,7 @@ if __name__=="__main__":
 	parser.add_argument("-f","--file",dest="options_file",action="store",type=str,help="analysis options file")
 	parser.add_argument("-v","--verbose",dest="verbose",action="store_true",default=False,help="turn on verbosity")
 	parser.add_argument("-t","--type",dest="type",action="store",default="npy",help="format in which to save the features")
-	parser.add_argument("-h","--hough",dest="hough",action="store_true",default=False,help="enable to measure hough histograms")
+	parser.add_argument("-H","--hough",dest="hough",action="store_true",default=False,help="enable to measure hough histograms")
 
 	cmd_args = parser.parse_args()
 
